@@ -44,10 +44,11 @@ run "yarn add -D @tailwindcss/aspect-ratio"
 run "yarn add -D @tailwindcss/container-queries"
 run "yarn add -D @tailwindcss/forms"
 run "yarn add -D @tailwindcss/typography"
+run "yarn add -D postcss"
 
 environment "config.action_mailer.default_url_options = {host: '#{action_mailer_host}'}", env: "production" unless action_mailer_host.to_s.strip.empty?
 
-file "tailwind.config.js", <<-CODE
+file "config/tailwind.config.js", <<-CODE
 /** @type {import('tailwindcss').Config} */
 
 const plugin = require('tailwindcss/plugin')
@@ -170,9 +171,14 @@ file 'app/assets/config/manifest.js', <<-CODE
 CODE
 
 after_bundle do
+  say "Installing Phlex"
   generate "phlex:install"
+  say "Installing Rspec"
   generate "rspec:install"
-  generate "spina:install" if include_spina_cms
+  if include_spina_cms
+    say "Installing Spina"
+    generate "spina:install"
+  end
 
   git :init
   git add: "."
